@@ -30,15 +30,9 @@ jobs:
         run: |
           zip -r "${{ github.event.inputs.target_folder }}.zip" "${{ github.event.inputs.target_folder }}"
 
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ github.event.inputs.target_folder }}-${{ github.event.inputs.version }}
-          release_name: ${{ github.event.inputs.target_folder }}-${{ github.event.inputs.version }}
-          body: "Release for ${{ github.event.inputs.target_folder }} version ${{ github.event.inputs.version }}"
-          draft: false
-          prerelease: false
-          files: ${{ github.event.inputs.target_folder }}.zip
+      - name: Release folder
+        run: |
+          gh release create "${{ github.event.inputs.target_folder }}-${{ github.event.inputs.version }}" "${{ github.event.inputs.target_folder }}".zip --title "${{ github.event.inputs.target_folder }} ${{ github.event.inputs.version }} Release" --notes "Release for ${{ github.event.inputs.target_folder }} folder version ${{ github.event.inputs.version }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
