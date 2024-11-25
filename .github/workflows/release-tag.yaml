@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       target_folder:
-        description: "Folder to release (rust or go)"
+        description: "Folder to release"
         required: true
       version:
         description: "Version for the release (e.g., 0.0.1)"
@@ -15,11 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Ensure the specified folder exists
       - name: Validate folder
         id: validate_folder
         run: |
@@ -28,12 +26,10 @@ jobs:
             exit 1
           fi
 
-      # Prepare release assets (zip the folder contents)
       - name: Prepare release assets
         run: |
           zip -r "${{ github.event.inputs.target_folder }}.zip" "${{ github.event.inputs.target_folder }}"
 
-      # Create or update the release
       - name: Create GitHub Release
         uses: actions/create-release@v1
         with:
@@ -43,8 +39,9 @@ jobs:
           draft: false
           prerelease: false
           files: ${{ github.event.inputs.target_folder }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Clean up generated files
       - name: Cleanup
         run: |
           rm -f "${{ github.event.inputs.target_folder }}.zip"
