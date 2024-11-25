@@ -1,0 +1,59 @@
+name: Create Release Tag Based on Folder
+
+on:
+  push:
+    paths:
+      - "rust/**"
+    branches:
+      - main
+
+jobs:
+  create-release-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Determine folder and new tag
+        id: new_tag
+        run: |
+          if git diff --name-only HEAD^ HEAD | grep -q "^rust/"; then
+            folder="rust"
+          else
+            echo "No valid folder detected."
+            exit 1
+          fi
+          echo "Folder: $folder"
+
+          latest_tag=$(git tag --list "${folder}-*" | sort -V | tail -n 1 || echo "${folder}-0.0.0")
+          echo "Latest tag: $latest_tag"
+
+          major=$(echo $latest_tag | cut -d. -f1 | sed "s/${folder}-//")
+          minor=$(echo $latest_tag | cut -d. -f2)
+          patch=$(echo $latest_tag | cut -d. -f3)
+
+          new_tag="${folder}-${major}.${minor}.$((patch + 1))"
+          echo "New tag: $new_tag"
+          echo "folder=$folder" >> $GITHUB_OUTPUT
+          echo "tag=$new_tag" >> $GITHUB_OUTPUT
+
+      - name: Create new tag
+        run: |
+          git tag ${{ steps.new_tag.outputs.tag }}
+          git push origin ${{ steps.new_tag.outputs.tag }}
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.new_tag.outputs.tag }}
+          release_name: ${{ steps.new_tag.outputs.folder }} Release - ${{ steps.new_tag.outputs.tag }}
+          body: |
+            Release created for changes in the `{{ steps.new_tag.outputs.folder }}` folder.
+          draft: false
+          prerelease: false
