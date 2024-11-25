@@ -71,3 +71,5 @@ jobs:
             Release created for changes in the `${{ steps.new_tag.outputs.folder }}` folder.
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

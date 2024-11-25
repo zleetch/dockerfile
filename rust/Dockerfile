@@ -1,6 +1,5 @@
 ARG app_name
 
-# build stage
 FROM rust:1 as build-env
 WORKDIR /app
 COPY . /app
