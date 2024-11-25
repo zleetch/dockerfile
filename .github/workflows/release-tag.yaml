@@ -36,12 +36,16 @@ jobs:
           fi
           echo "Folder: $folder"
 
-          latest_tag=$(git tag --list "${folder}-*" | sort -V | tail -n 1 || echo "${folder}-0.0.0")
+          latest_tag=$(git tag --list "${folder}*" | sort -V | tail -n 1 || echo "${folder}-0.0.0")
           echo "Latest tag: $latest_tag"
 
-          major=$(echo $latest_tag | cut -d. -f1 | sed "s/${folder}-//")
-          minor=$(echo $latest_tag | cut -d. -f2)
-          patch=$(echo $latest_tag | cut -d. -f3)
+          major=$(echo $latest_tag | cut -d. -f1 | sed "s/${folder}//" || echo "0")
+          minor=$(echo $latest_tag | cut -d. -f2 || echo "0")
+          patch=$(echo $latest_tag | cut -d. -f3 || echo "0")
+
+          major=${major:-0}
+          minor=${minor:-0}
+          patch=${patch:-0}
 
           new_tag="${folder}-${major}.${minor}.$((patch + 1))"
           echo "New tag: $new_tag"
@@ -59,6 +63,6 @@ jobs:
           tag_name: ${{ steps.new_tag.outputs.tag }}
           release_name: ${{ steps.new_tag.outputs.folder }} Release - ${{ steps.new_tag.outputs.tag }}
           body: |
-            Release created for changes in the `{{ steps.new_tag.outputs.folder }}` folder.
+            Release created for changes in the `${{ steps.new_tag.outputs.folder }}` folder.
           draft: false
           prerelease: false
