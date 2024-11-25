@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Configure Git
         run: |
@@ -23,9 +25,12 @@ jobs:
       - name: Determine folder and new tag
         id: new_tag
         run: |
-          if git diff --name-only HEAD^ HEAD | grep -q "^rust/"; then
+          folder=""
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "^rust/"; then
             folder="rust"
-          else
+          fi
+
+          if [ -z "$folder" ]; then
             echo "No valid folder detected."
             exit 1
           fi
