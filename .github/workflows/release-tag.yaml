@@ -32,7 +32,7 @@ jobs:
 
       - name: Release folder
         run: |
-          gh release create "${{ github.event.inputs.target_folder }}-${{ github.event.inputs.version }}" "${{ github.event.inputs.target_folder }}".zip --title "${{ github.event.inputs.target_folder }} ${{ github.event.inputs.version }} Release" --notes "Release for ${{ github.event.inputs.target_folder }} folder version ${{ github.event.inputs.version }}"
+          gh release create "${{ github.event.inputs.target_folder }}-${{ github.event.inputs.version }}" "${{ github.event.inputs.target_folder }}".zip --title "${{ github.event.inputs.target_folder }} ${{ github.event.inputs.version }} Release" --notes "Release for ${{ github.event.inputs.target_folder }} folder version ${{ github.event.inputs.version }}" --no-sources
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
