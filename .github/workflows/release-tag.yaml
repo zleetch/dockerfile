@@ -62,14 +62,18 @@ jobs:
           git tag ${{ steps.new_tag.outputs.tag }}
           git push origin ${{ steps.new_tag.outputs.tag }}
 
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
+      - name: Package folder as asset
+        run: |
+          mkdir -p release-assets
+          zip -r release-assets/${{ steps.new_tag.outputs.folder }}.zip ${{ steps.new_tag.outputs.folder }}
+        shell: bash
+
+      - name: Create GitHub Release with asset
+        uses: actions/upload-release-asset@v1
         with:
-          tag_name: ${{ steps.new_tag.outputs.tag }}
-          release_name: ${{ steps.new_tag.outputs.folder }} Release - ${{ steps.new_tag.outputs.tag }}
-          body: |
-            Release created for changes in the `${{ steps.new_tag.outputs.folder }}` folder.
-          draft: false
-          prerelease: false
+          upload_url: ${{ steps.new_tag.outputs.tag }}
+          asset_path: release-assets/${{ steps.new_tag.outputs.folder }}.zip
+          asset_name: ${{ steps.new_tag.outputs.folder }}.zip
+          asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
