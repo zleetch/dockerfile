@@ -3,7 +3,8 @@ ARG app_name
 FROM rust:1 as build-env
 WORKDIR /app
 COPY . /app
-RUN apt-get install protobuf-compiler -y && \
+RUN apt-get update -y && \
+  apt-get install protobuf-compiler -y && \
   cargo build --release
 
 FROM gcr.io/distroless/cc-debian12:latest
